@@ -49,7 +49,7 @@ class _CustomMapState extends State<CustomMap> {
   // List<Map<String, dynamic>> markers = MapController.instance.markers;
 
   // List<String> labeltosearch = RxList([]);
-              TextEditingController txtcontroller = TextEditingController();
+  TextEditingController txtcontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,8 +76,7 @@ class _CustomMapState extends State<CustomMap> {
             initState: (_) {},
             builder: (controller) {
               return GoogleMap(
-                markers: controller.marks
-                ,
+                markers: controller.marks,
                 onMapCreated: ((controller) => {}),
                 myLocationEnabled: true,
                 mapType: MapType.normal,
@@ -115,7 +114,7 @@ class _CustomMapState extends State<CustomMap> {
                               padding: const EdgeInsets.all(0),
                               onPressed: () {
                                 Get.defaultDialog(
-                                  title: "",
+                                    title: "",
                                     content: const HamburgerMenupopup());
                               },
                               icon: Icon(
@@ -155,16 +154,18 @@ class _CustomMapState extends State<CustomMap> {
                         child: TextField(
                           controller: txtcontroller,
                           // onEditingComplete: ,
-                          onEditingComplete: () async{
-                                  String val =txtcontroller.text;
-                                         FirestoreDb.getLocationsfiltersearch(val)
-                                            .then((value){
-                                              print("###############################################Filter request result ${value}");
-                                          MapController.instance.updateMarker(value);
-                                          Get.forceAppUpdate();
-                                          Get.snackbar("Work Force filter", "The work force List has been filtered");
-                                        });
-                                      },
+                          onEditingComplete: () async {
+                            String val = txtcontroller.text;
+                            FirestoreDb.getLocationsfiltersearch(val)
+                                .then((value) {
+                              print(
+                                  "###############################################Filter request result ${value}");
+                              MapController.instance.updateMarker(value);
+                              Get.forceAppUpdate();
+                              Get.snackbar("Work Force filter",
+                                  "The work force List has been filtered");
+                            });
+                          },
                           cursorColor: kPrimaryColor,
                           decoration: InputDecoration(
                             icon: Icon(
@@ -195,34 +196,38 @@ class _CustomMapState extends State<CustomMap> {
                                   });
 
                                   Get.defaultDialog(
-                                  
-                                    title: "",
+                                      title: "",
                                       content: FilterPopUp(
-                                    categories: categories,
-                                  )
-                                  ,
-                                  confirm: GestureDetector(
-              onTap: () async{
-                await FirestoreDb.getLocationsfilter(
-                        MapController.instance.labeltosearch)
-                    .then((value){
-                      print("###############################################Filter request result ${value}");
-                  MapController.instance.updateMarker(value);
-                  Get.forceAppUpdate();
-                  Get.snackbar("Work Force filter", "The work force List has been filtered");
-                  Navigator.pop(context);
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                color: Colors.blue[400],
-                borderRadius: const BorderRadius.all(Radius.circular(25))
-                ),
-                width: Get.width,
-                height: 50,
-                child: const Center(child: Text("Search")),
-              ),
-            ));
+                                        categories: categories,
+                                      ),
+                                      confirm: GestureDetector(
+                                        onTap: () async {
+                                          await FirestoreDb.getLocationsfilter(
+                                                  MapController
+                                                      .instance.labeltosearch)
+                                              .then((value) {
+                                            print(
+                                                "###############################################Filter request result ${value}");
+                                            MapController.instance
+                                                .updateMarker(value);
+                                            Get.forceAppUpdate();
+                                            Get.snackbar("Work Force filter",
+                                                "The work force List has been filtered");
+                                            Navigator.pop(context);
+                                          });
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              color: Colors.blue[400],
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(25))),
+                                          width: Get.width,
+                                          height: 50,
+                                          child: const Center(
+                                              child: Text("Search")),
+                                        ),
+                                      ));
                                 },
                                 icon: Icon(
                                   Icons.filter_list,
@@ -482,7 +487,7 @@ class ProfileScreen extends StatelessWidget {
                 Column(
                   children: [
                     Text(
-                      "${auth.currentUser!.displayName}",
+                      "${auth.currentUser!.displayName == null ? nameController.text : auth.currentUser!.displayName}",
                       style: TextStyle(fontSize: 25, color: Colors.grey),
                     ),
                     Row(
@@ -642,6 +647,14 @@ class _ChipListState extends State<ChipList> {
   // bool isSelected = false;
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic>? userprofile = {};
+    String name = "NOUsername";
+    FirestoreDb.getUserProfile(auth.currentUser!.uid).then((value) {
+      userprofile = value;
+      print("user profile data ${userprofile}");
+      name = userprofile!['name'];
+    });
+
     return Scaffold(
         body: Container(
             padding: const EdgeInsets.only(right: 10, left: 10, top: 15),
@@ -674,7 +687,7 @@ class _ChipListState extends State<ChipList> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              "${auth.currentUser!.displayName == null ? "NoUserName " : auth.currentUser!.displayName}",
+                              "${auth.currentUser!.displayName == null ? name : auth.currentUser!.displayName}",
                               style:
                                   TextStyle(fontSize: 30, color: Colors.grey),
                             ),
@@ -811,4 +824,3 @@ class _ChipListState extends State<ChipList> {
     return generalcategories;
   }
 }
-
